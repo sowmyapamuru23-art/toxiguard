@@ -1,19 +1,29 @@
 // ToxiGuard - MySQL Database Connection
 const mysql = require('mysql2');
 
-// Create connection pool
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT) || 3306,
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASS || '',
-    database: process.env.DB_NAME || 'toxiguard_db',
-    waitForConnections: true,
-    connectionLimit: 5,
-    queueLimit: 0,
-    connectTimeout: 30000,
-    ssl: { rejectUnauthorized: false }   // Required for Railway MySQL
-});
+let pool;
+
+// Railway provides MYSQL_URL — use it if available (most reliable)
+if (process.env.MYSQL_URL) {
+    // Parse Railway's MYSQL_URL: mysql://user:pass@host:port/dbname
+    pool = mysql.createPool(process.env.MYSQL_URL + '?ssl={"rejectUnauthorized":false}');
+    console.log('🔗 Using MYSQL_URL from Railway environment');
+} else {
+    // Local dev: use individual .env variables
+    pool = mysql.createPool({
+        host: process.env.DB_HOST || 'localhost',
+        port: parseInt(process.env.DB_PORT) || 3306,
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASS || '',
+        database: process.env.DB_NAME || 'toxiguard_db',
+        waitForConnections: true,
+        connectionLimit: 5,
+        queueLimit: 0,
+        connectTimeout: 30000,
+        ssl: false
+    });
+    console.log(`🔗 Using local MySQL at ${process.env.DB_HOST || 'localhost'}`);
+}
 
 const promisePool = pool.promise();
 
@@ -49,13 +59,12 @@ const initDB = async () => {
     }
 };
 
-// Test connection and init tables on startup
+// Test connection and init tables
 pool.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Database connection failed:', err.message);
-        console.error('   → Check environment variables (DB_HOST, DB_USER, DB_PASS, DB_NAME)');
     } else {
-        console.log(`✅ Connected to MySQL at ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 3306}`);
+        console.log('✅ Connected to MySQL successfully.');
         connection.release();
         initDB();
     }
