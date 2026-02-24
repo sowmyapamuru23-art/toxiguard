@@ -3,13 +3,12 @@ const mysql = require('mysql2');
 
 let pool;
 
-// Railway provides MYSQL_URL — use it if available (most reliable)
 if (process.env.MYSQL_URL) {
-    // Parse Railway's MYSQL_URL: mysql://user:pass@host:port/dbname
-    pool = mysql.createPool(process.env.MYSQL_URL + '?ssl={"rejectUnauthorized":false}');
-    console.log('🔗 Using MYSQL_URL from Railway environment');
+    // Railway: use the built-in connection URL (internal network, no SSL needed)
+    pool = mysql.createPool(process.env.MYSQL_URL);
+    console.log('🔗 Connected via Railway MYSQL_URL');
 } else {
-    // Local dev: use individual .env variables
+    // Local development
     pool = mysql.createPool({
         host: process.env.DB_HOST || 'localhost',
         port: parseInt(process.env.DB_PORT) || 3306,
@@ -19,15 +18,14 @@ if (process.env.MYSQL_URL) {
         waitForConnections: true,
         connectionLimit: 5,
         queueLimit: 0,
-        connectTimeout: 30000,
-        ssl: false
+        connectTimeout: 30000
     });
-    console.log(`🔗 Using local MySQL at ${process.env.DB_HOST || 'localhost'}`);
+    console.log(`🔗 Connected via local MySQL at ${process.env.DB_HOST || 'localhost'}`);
 }
 
 const promisePool = pool.promise();
 
-// Auto-create tables if they don't exist
+// Auto-create tables on startup
 const initDB = async () => {
     try {
         await promisePool.query(`
@@ -39,32 +37,29 @@ const initDB = async () => {
                 created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
-
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS messages (
                 id             INT AUTO_INCREMENT PRIMARY KEY,
                 user_id        INT NOT NULL,
-                username       VARCHAR(50) NOT NULL,
+                username       VARCHAR(50)  NOT NULL,
                 content        TEXT NOT NULL,
-                is_toxic       TINYINT(1) DEFAULT 0,
+                is_toxic       TINYINT(1)  DEFAULT 0,
                 toxic_category VARCHAR(50) DEFAULT NULL,
-                created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_at     TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         `);
-
-        console.log('✅ Database tables ready.');
+        console.log('✅ Tables ready.');
     } catch (err) {
-        console.error('❌ Failed to initialize tables:', err.message);
+        console.error('❌ Table init failed:', err.message);
     }
 };
 
-// Test connection and init tables
 pool.getConnection((err, connection) => {
     if (err) {
-        console.error('❌ Database connection failed:', err.message);
+        console.error('❌ DB connection failed:', err.message);
     } else {
-        console.log('✅ Connected to MySQL successfully.');
+        console.log('✅ MySQL connected successfully.');
         connection.release();
         initDB();
     }
