@@ -1,0 +1,18 @@
+{
+  "name": "toxic-chat-server",
+  "version": "1.0.0",
+  "description": "Real-time chat app with toxic detection",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "cors": "^2.8.5"
+  }
+}

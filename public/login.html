@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — ToxiGuard</title>
+  <meta name="description" content="Login to ToxiGuard - Real-Time Chat with Toxic Message Detection" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+
+      <!-- Logo -->
+      <div class="auth-logo">
+        <div class="logo-icon">🛡️</div>
+        <h1>ToxiGuard</h1>
+        <p>Real-Time Chat with Toxic Message Detection</p>
+      </div>
+
+      <!-- Alert -->
+      <div class="alert-msg error" id="alertMsg"></div>
+
+      <!-- Login Form -->
+      <h2 class="auth-title">Welcome back</h2>
+      <p class="auth-subtitle">Sign in to your account to continue</p>
+
+      <form id="loginForm" novalidate>
+        <div class="mb-3">
+          <label class="form-label" for="email">Email address</label>
+          <input
+            id="email"
+            type="email"
+            class="form-control"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            class="form-control"
+            placeholder="Your password"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button type="submit" class="btn-primary-custom mt-2" id="loginBtn">
+          Sign In
+        </button>
+      </form>
+
+      <div class="auth-link">
+        Don't have an account? <a href="register.html">Create one</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+</body>
+</html>

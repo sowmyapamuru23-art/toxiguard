@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat — ToxiGuard</title>
+    <meta name="description" content="ToxiGuard real-time safe chat room" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- Toast Warning Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="chat-layout">
+
+        <!-- ── Sidebar ── -->
+        <aside class="chat-sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🛡️</div>
+                <h2>ToxiGuard</h2>
+            </div>
+
+            <p class="sidebar-section-title">Global Room</p>
+            <div class="online-badge">
+                <span class="online-dot"></span>
+                <span id="onlineCount">0</span>&nbsp;online
+            </div>
+
+            <div style="margin-top: 20px;">
+                <p class="sidebar-section-title">Protection Active</p>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.7;">
+                    ✅ Toxic detection<br />
+                    ✅ Insult filter<br />
+                    ✅ Threat blocker<br />
+                    ✅ Obscene filter<br />
+                    ✅ Identity hate guard
+                </div>
+            </div>
+
+            <!-- Current user card -->
+            <div class="user-info-card">
+                <div class="user-avatar" id="avatarLetter">?</div>
+                <div class="user-info-text">
+                    <div class="name" id="sidebarUsername">...</div>
+                    <div class="role">Member</div>
+                </div>
+                <button class="btn-logout" id="logoutBtn" title="Logout">⏻</button>
+            </div>
+        </aside>
+
+        <!-- ── Main Chat ── -->
+        <main class="chat-main">
+
+            <!-- Header -->
+            <div class="chat-header">
+                <div>
+                    <h3>🌐 Global Chat Room</h3>
+                    <div class="subtitle">All messages are screened for toxicity before delivery</div>
+                </div>
+                <div class="shield-badge">🛡️ ToxiGuard Active</div>
+            </div>
+
+            <!-- Messages area -->
+            <div class="messages-area" id="messagesArea">
+                <div class="system-msg">🛡️ Welcome to ToxiGuard — a safe, moderated chat room.</div>
+            </div>
+
+            <!-- Input area -->
+            <div class="chat-input-area">
+                <div class="input-wrapper">
+                    <textarea id="messageInput" placeholder="Type a message... (Enter to send)" rows="1"
+                        maxlength="500"></textarea>
+                    <button class="btn-send" id="sendBtn" title="Send message">
+                        ➤
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="chat.js"></script>
+</body>
+
+</html>
