@@ -12,9 +12,7 @@ const pool = mysql.createPool({
     connectionLimit: 5,
     queueLimit: 0,
     connectTimeout: 30000,
-    ssl: process.env.DB_HOST && process.env.DB_HOST !== 'localhost'
-        ? { rejectUnauthorized: false }
-        : false
+    ssl: { rejectUnauthorized: false }   // Required for Railway MySQL
 });
 
 const promisePool = pool.promise();
@@ -24,11 +22,11 @@ const initDB = async () => {
     try {
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS users (
-                id           INT AUTO_INCREMENT PRIMARY KEY,
-                username     VARCHAR(50)  NOT NULL UNIQUE,
-                email        VARCHAR(100) NOT NULL UNIQUE,
+                id            INT AUTO_INCREMENT PRIMARY KEY,
+                username      VARCHAR(50)  NOT NULL UNIQUE,
+                email         VARCHAR(100) NOT NULL UNIQUE,
                 password_hash VARCHAR(255) NOT NULL,
-                created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
 
@@ -55,11 +53,11 @@ const initDB = async () => {
 pool.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Database connection failed:', err.message);
-        console.error('   → Check your environment variables (DB_HOST, DB_USER, DB_PASS, DB_NAME)');
+        console.error('   → Check environment variables (DB_HOST, DB_USER, DB_PASS, DB_NAME)');
     } else {
         console.log(`✅ Connected to MySQL at ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 3306}`);
         connection.release();
-        initDB(); // Auto-create tables
+        initDB();
     }
 });
 
