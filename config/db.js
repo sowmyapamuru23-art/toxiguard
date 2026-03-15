@@ -51,13 +51,15 @@ const initDB = async () => {
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS messages (
                 id             INT AUTO_INCREMENT PRIMARY KEY,
-                user_id        INT          NOT NULL,
+                sender_id      INT          NOT NULL,
+                receiver_id    INT          NOT NULL,
                 username       VARCHAR(50)  NOT NULL,
                 content        TEXT         NOT NULL,
                 is_toxic       TINYINT(1)   DEFAULT 0,
                 toxic_category VARCHAR(50)  DEFAULT NULL,
                 created_at     TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
             )
         `);
         console.log('✅ Tables ready.');

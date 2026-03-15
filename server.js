@@ -10,6 +10,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
 const adminRoutes = require('./routes/admin');
+const userRoutes = require('./routes/users');
 const { initSocket } = require('./socket/chatSocket');
 
 const app = express();
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
 
 // Serve login page as default
 app.get('/', (req, res) => {

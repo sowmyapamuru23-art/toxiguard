@@ -8,39 +8,41 @@ const toxicPatterns = {
     toxic: [
         'stupid', 'idiot', 'dumb', 'moron', 'retard', 'loser', 'pathetic',
         'worthless', 'useless', 'disgusting', 'disgrace', 'trash', 'garbage',
-        'freak', 'creep', 'jerk', 'weirdo', 'lame', 'failure'
+        'freak', 'creep', 'jerk', 'weirdo', 'lame', 'failure', 'fool', 'imbecile'
     ],
 
-    // Direct insults
+    // Direct insults & Rude Phrasing
     insult: [
-        'shut up', 'go to hell', 'go die', 'get lost', 'drop dead',
-        'you suck', 'you stink', 'you are nothing', 'nobody likes you',
-        'you are a joke', 'you are worthless', 'you are pathetic'
+        'shut up', 'go to hell', 'get lost', 'you suck', 'you stink',
+        'you are nothing', 'nobody likes you', 'you are a joke',
+        'you are worthless', 'you are pathetic', 'piece of shit',
+        'fuck you', 'stfu', 'piss off'
     ],
 
-    // Severe toxic / hate
+    // Severe toxic / self-harm / extreme hate
     severe_toxic: [
         'kill yourself', 'kys', 'i hope you die', 'you deserve to die',
-        'go kill', 'end your life'
+        'go kill', 'end your life', 'drop dead'
     ],
 
-    // Threats
+    // Threats & Violent Keywords
     threat: [
-        'i will kill you', 'i will hurt you', 'i will find you',
-        'watch your back', 'you will pay', 'i will destroy you',
-        'going to beat you', "i'll get you", 'you are dead', 'suffer for this'
+        'kill', 'murder', 'hurt', 'beat', 'attack', 'destroy',
+        'stab', 'shoot', 'punch', 'hit', 'smash', 'harm',
+        'threaten', 'watch your back', 'you will pay', 'going to beat you',
+        "i'll get you", 'you are dead', 'suffer for this'
     ],
 
     // Obscene content
     obscene: [
         'fuck', 'shit', 'bitch', 'ass', 'bastard', 'damn', 'crap',
-        'wtf', 'stfu', 'piss off', 'f***', 's***', 'b****'
+        'wtf', 'f***', 's***', 'b****', 'dick', 'cunt', 'prick'
     ],
 
     // Identity-based hate
     identity_hate: [
         'racist', 'sexist', 'bigot', 'homophobic', 'transphobic',
-        'nazi', 'terrorist', 'infidel'
+        'nazi', 'terrorist', 'infidel', 'hate'
     ]
 };
 

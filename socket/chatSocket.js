@@ -12,6 +12,9 @@ const userStrikes = {};
 // Permanently blocked users (this session): Set of userIds
 const blockedUsers = new Set();
 
+// User Socket Mapping: { userId -> Set of socketIds } (to handle multiple tabs)
+const onlineUsersMap = new Map();
+
 // Max toxic messages before ban
 const MAX_STRIKES = 3;
 
@@ -50,7 +53,7 @@ const initSocket = (io) => {
     io.on('connection', (socket) => {
         const { id: userId, username } = socket.user;
 
-        // ── Block check: reject if user was banned this session ──
+        // ── Block check ──
         if (blockedUsers.has(userId)) {
             socket.emit('blocked', {
                 message: '🚫 You have been blocked from this chat due to repeated toxic behavior.'
@@ -59,28 +62,34 @@ const initSocket = (io) => {
             return;
         }
 
+        // ── Track Online User ──
+        if (!onlineUsersMap.has(userId)) {
+            onlineUsersMap.set(userId, new Set());
+        }
+        onlineUsersMap.get(userId).add(socket.id);
+
         onlineUsers++;
         console.log(`✅ ${username} connected | Online: ${onlineUsers}`);
 
-        // Send current strike count to reconnecting user
+        // Broadcast updated count
+        io.emit('userCount', onlineUsers);
+        // io.emit('systemMessage', `${username} joined the chat.`); // Global join msg (optional for personal)
+
+        // Send current strike count
         socket.emit('strikeUpdate', {
             strikes: userStrikes[userId] || 0,
             maxStrikes: MAX_STRIKES
         });
 
-        // Notify all of updated count & join message
-        io.emit('userCount', onlineUsers);
-        io.emit('systemMessage', `${username} joined the chat.`);
-
-        // ── Handle incoming chat message ──
-        socket.on('chatMessage', async (content) => {
-            if (!content || content.trim() === '') return;
+        // ── Handle incoming 1-to-1 chat message ──
+        socket.on('chatMessage', async (data) => {
+            const { content, receiverId } = data;
+            if (!content || !content.trim()) return;
+            if (!receiverId) return;
 
             // Check if user got blocked while connected
             if (blockedUsers.has(userId)) {
-                socket.emit('blocked', {
-                    message: '🚫 You are blocked from sending messages.'
-                });
+                socket.emit('blocked', { message: '🚫 You are blocked from sending messages.' });
                 socket.disconnect(true);
                 return;
             }
@@ -99,72 +108,64 @@ const initSocket = (io) => {
                 console.log(`⚠️  ${username} toxic message [${category}] | Strikes: ${strikes}/${MAX_STRIKES}`);
 
                 if (strikes >= MAX_STRIKES) {
-                    // ── BAN the user ──
                     blockedUsers.add(userId);
-
                     socket.emit('blocked', {
-                        message: `🚫 You have been BLOCKED from ToxiGuard chat.\nReason: ${MAX_STRIKES} toxic messages detected.\nPlease contact admin to appeal.`
+                        message: `🚫 You have been BLOCKED.\nReason: ${MAX_STRIKES} toxic messages detected.`
                     });
-
-                    // Notify all that user was removed
-                    io.emit('systemMessage', `⚠️ ${username} has been removed for toxic behavior.`);
-
-                    try {
-                        await saveMessage(userId, username, trimmedContent, true, category);
-                    } catch (err) {
-                        console.error('DB save error (ban):', err.message);
-                    }
-
                     socket.disconnect(true);
-
                 } else {
-                    // ── Warn the user (not yet banned) ──
                     socket.emit('warning', {
-                        message: `⚠️ Toxic message blocked! (${category.replace(/_/g, ' ').toUpperCase()})`,
-                        category,
-                        strikes,
-                        maxStrikes: MAX_STRIKES,
-                        remaining
+                        message: `⚠️ Toxic message blocked! (${category.toUpperCase()})`,
+                        category, strikes, maxStrikes: MAX_STRIKES, remaining
                     });
-
-                    // Send updated strike count
                     socket.emit('strikeUpdate', { strikes, maxStrikes: MAX_STRIKES });
-
-                    try {
-                        await saveMessage(userId, username, trimmedContent, true, category);
-                    } catch (err) {
-                        console.error('DB save error (toxic):', err.message);
-                    }
                 }
+
+                // Save toxic message record
+                try {
+                    await saveMessage(userId, receiverId, username, trimmedContent, true, category);
+                } catch (err) { console.error('DB save error (toxic):', err.message); }
 
             } else {
-                // ── Safe message: broadcast to everyone ──
+                // ── Safe message: emit only to SENDER and RECEIVER ──
                 const msgData = {
+                    senderId: userId,
                     username,
                     content: trimmedContent,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    receiverId
                 };
-                io.emit('chatMessage', msgData);
 
-                // Reset strikes on good behavior (optional: comment out to keep cumulative)
-                // userStrikes[userId] = 0;
+                // Send to all of sender's tabs
+                const senderSockets = onlineUsersMap.get(userId);
+                if (senderSockets) {
+                    senderSockets.forEach(sid => io.to(sid).emit('chatMessage', msgData));
+                }
+
+                // Send to all of receiver's tabs
+                const receiverSockets = onlineUsersMap.get(parseInt(receiverId));
+                if (receiverSockets) {
+                    receiverSockets.forEach(sid => io.to(sid).emit('chatMessage', msgData));
+                }
 
                 try {
-                    await saveMessage(userId, username, trimmedContent, false, null);
-                } catch (err) {
-                    console.error('DB save error (safe):', err.message);
-                }
+                    await saveMessage(userId, receiverId, username, trimmedContent, false, null);
+                } catch (err) { console.error('DB save error (safe):', err.message); }
             }
         });
 
         // ── Disconnect ──
         socket.on('disconnect', () => {
-            onlineUsers = Math.max(0, onlineUsers - 1);
-            io.emit('userCount', onlineUsers);
-            if (!blockedUsers.has(userId)) {
-                io.emit('systemMessage', `${username} left the chat.`);
+            const userSockets = onlineUsersMap.get(userId);
+            if (userSockets) {
+                userSockets.delete(socket.id);
+                if (userSockets.size === 0) {
+                    onlineUsersMap.delete(userId);
+                    onlineUsers = Math.max(0, onlineUsers - 1);
+                    io.emit('userCount', onlineUsers);
+                    console.log(`❌ ${username} went offline | Online: ${onlineUsers}`);
+                }
             }
-            console.log(`❌ ${username} disconnected | Online: ${onlineUsers}`);
         });
 
     });

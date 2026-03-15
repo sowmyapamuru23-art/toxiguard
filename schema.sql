@@ -13,13 +13,15 @@ CREATE TABLE IF NOT EXISTS users (
 -- Messages table
 CREATE TABLE IF NOT EXISTS messages (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
+  user_id INT NOT NULL,           -- Sender ID
+  receiver_id INT DEFAULT NULL,   -- Receiver ID (null for global, though we moving to 1-to-1)
   username VARCHAR(50) NOT NULL,
   content TEXT NOT NULL,
   is_toxic TINYINT(1) DEFAULT 0,   -- 0 = safe, 1 = toxic
   toxic_category VARCHAR(50) DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Index for faster message retrieval

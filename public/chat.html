@@ -23,20 +23,16 @@
                 <h2>ToxiGuard</h2>
             </div>
 
-            <p class="sidebar-section-title">Global Room</p>
+            <p class="sidebar-section-title">Online Members</p>
             <div class="online-badge">
                 <span class="online-dot"></span>
                 <span id="onlineCount">0</span>&nbsp;online
             </div>
 
-            <div style="margin-top: 20px;">
-                <p class="sidebar-section-title">Protection Active</p>
-                <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.7;">
-                    ✅ Toxic detection<br />
-                    ✅ Insult filter<br />
-                    ✅ Threat blocker<br />
-                    ✅ Obscene filter<br />
-                    ✅ Identity hate guard
+            <div class="user-list" id="userList">
+                <!-- Users will be populated here -->
+                <div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.8rem;">
+                    Loading contacts...
                 </div>
             </div>
 
@@ -52,13 +48,13 @@
         </aside>
 
         <!-- ── Main Chat ── -->
-        <main class="chat-main">
+        <main class="chat-main" id="chatMain" style="display: none;">
 
             <!-- Header -->
             <div class="chat-header">
                 <div>
-                    <h3>🌐 Global Chat Room</h3>
-                    <div class="subtitle">All messages are screened for toxicity before delivery</div>
+                    <h3 id="chatWithTitle">💬 Select a contact</h3>
+                    <div class="subtitle" id="chatWithSubtitle">Messages are screened for toxicity</div>
                 </div>
                 <div class="shield-badge">🛡️ ToxiGuard Active</div>
             </div>
