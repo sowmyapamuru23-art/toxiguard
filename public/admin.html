@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — ToxiGuard</title>
+    <meta name="description" content="ToxiGuard Admin Dashboard - Manage users, blocks, toxic messages, and word filters" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-page">
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <h1 class="logo">🛡️ ToxiGuard <span>Admin</span></h1>
+            <p class="subtitle">Manage users, moderation, and toxic word configuration</p>
+        </header>
+
+        <main class="admin-main">
+            <!-- Authentication Section -->
+            <div id="adminAuthSection" class="glass-panel">
+                <h2>Admin Login</h2>
+                <p>Enter your Admin Key to access the dashboard.</p>
+                <div class="input-group">
+                    <input type="password" id="adminKeyInput" placeholder="Enter Admin Key" autocomplete="off" />
+                </div>
+                <button class="btn primary-btn" id="adminLoginBtn" style="margin-top: 15px; width: 100%;">Access Dashboard</button>
+                <div id="authMessage" class="alert-msg"></div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="adminDashboardSection" style="display: none;">
+
+                <!-- Tab Navigation -->
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="overview">📊 Overview</button>
+                    <button class="admin-tab" data-tab="users">👥 Users</button>
+                    <button class="admin-tab" data-tab="toxic-logs">📝 Toxic Logs</button>
+                    <button class="admin-tab" data-tab="blocked">🚫 Blocked</button>
+                    <button class="admin-tab" data-tab="words">📖 Word Config</button>
+                </div>
+
+                <!-- ═══════ OVERVIEW TAB ═══════ -->
+                <div class="tab-content active" id="tab-overview">
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card accent">
+                            <div class="stat-icon">💬</div>
+                            <div class="stat-value" id="statTotalMessages">—</div>
+                            <div class="stat-label">Total Messages</div>
+                        </div>
+                        <div class="stat-card danger">
+                            <div class="stat-icon">🚫</div>
+                            <div class="stat-value" id="statToxicMessages">—</div>
+                            <div class="stat-label">Toxic Messages</div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-value" id="statTotalUsers">—</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-card warning">
+                            <div class="stat-icon">⛔</div>
+                            <div class="stat-value" id="statBlockedUsers">—</div>
+                            <div class="stat-label">Blocked Users</div>
+                        </div>
+                    </div>
+
+                    <!-- Toxic percentage -->
+                    <div class="glass-panel">
+                        <h3 style="margin-bottom: 12px; font-size: 0.95rem;">Toxicity Rate</h3>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="font-size: 2.2rem; font-weight: 700; color: var(--danger);" id="statToxicPercent">0%</div>
+                            <div style="font-size: 0.82rem; color: var(--text-muted);">of all messages are flagged as toxic</div>
+                        </div>
+                    </div>
+
+                    <!-- Top categories -->
+                    <div class="glass-panel">
+                        <h3 style="margin-bottom: 12px; font-size: 0.95rem;">Top Toxic Categories</h3>
+                        <div id="categoryChart" class="category-bar-chart">
+                            <div style="color: var(--text-muted); font-size: 0.85rem;">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════ USERS TAB ═══════ -->
+                <div class="tab-content" id="tab-users">
+                    <div class="glass-panel">
+                        <div class="dashboard-header">
+                            <h2>All Users</h2>
+                            <div class="dashboard-actions">
+                                <button class="btn secondary-btn" id="refreshUsersBtn">↻ Refresh</button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Strikes</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr><td colspan="6" class="text-center text-muted" style="padding:20px;">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════ TOXIC LOGS TAB ═══════ -->
+                <div class="tab-content" id="tab-toxic-logs">
+                    <div class="glass-panel">
+                        <div class="dashboard-header">
+                            <h2>Toxic Message Logs</h2>
+                            <div class="dashboard-actions">
+                                <button class="btn secondary-btn" id="refreshLogsBtn">↻ Refresh</button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>User</th>
+                                        <th>Message</th>
+                                        <th>Category</th>
+                                        <th>Time</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="toxicLogsTableBody">
+                                    <tr><td colspan="6" class="text-center text-muted" style="padding:20px;">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════ BLOCKED TAB ═══════ -->
+                <div class="tab-content" id="tab-blocked">
+                    <div class="glass-panel">
+                        <div class="dashboard-header">
+                            <h2>Blocked Users</h2>
+                            <div class="dashboard-actions">
+                                <button class="btn secondary-btn" id="refreshBlockedBtn">↻ Refresh</button>
+                                <button class="btn danger-btn" id="unblockAllBtn">Unblock All</button>
+                            </div>
+                        </div>
+                        <div id="blockedActionMessage" class="alert-msg"></div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Strikes</th>
+                                        <th>Blocked At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="blockedUsersTableBody">
+                                    <tr><td colspan="6" class="text-center text-muted" style="padding:20px;">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════ WORD CONFIG TAB ═══════ -->
+                <div class="tab-content" id="tab-words">
+                    <div class="glass-panel">
+                        <div class="dashboard-header">
+                            <h2>Toxic Word Configuration</h2>
+                            <div class="dashboard-actions">
+                                <button class="btn secondary-btn" id="refreshWordsBtn">↻ Refresh</button>
+                            </div>
+                        </div>
+
+                        <!-- Add word form -->
+                        <div class="add-word-form">
+                            <div class="form-group">
+                                <label>Word / Phrase</label>
+                                <input type="text" id="newWordInput" placeholder="Enter word..." />
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="newWordCategory">
+                                    <option value="toxic">Toxic</option>
+                                    <option value="insult">Insult</option>
+                                    <option value="severe_toxic">Severe Toxic</option>
+                                    <option value="threat">Threat</option>
+                                    <option value="obscene">Obscene</option>
+                                    <option value="identity_hate">Identity Hate</option>
+                                </select>
+                            </div>
+                            <button class="btn primary-btn" id="addWordBtn">+ Add Word</button>
+                        </div>
+
+                        <div id="wordActionMessage" class="alert-msg"></div>
+
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Word</th>
+                                        <th>Category</th>
+                                        <th>Added</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="wordsTableBody">
+                                    <tr><td colspan="5" class="text-center text-muted" style="padding:20px;">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

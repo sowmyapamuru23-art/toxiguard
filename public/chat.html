@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat — ToxiGuard</title>
-    <meta name="description" content="ToxiGuard real-time safe chat room" />
+    <meta name="description" content="ToxiGuard real-time safe chat room with toxic message detection" />
     <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -21,6 +21,7 @@
             <div class="sidebar-logo">
                 <div class="logo-icon">🛡️</div>
                 <h2>ToxiGuard</h2>
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">🌙</button>
             </div>
 
             <p class="sidebar-section-title">Online Members</p>
@@ -30,11 +31,12 @@
             </div>
 
             <div class="user-list" id="userList">
-                <!-- Users will be populated here -->
                 <div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.8rem;">
                     Loading contacts...
                 </div>
             </div>
+
+            <!-- Strike indicator (injected by JS) -->
 
             <!-- Current user card -->
             <div class="user-info-card">
@@ -48,30 +50,51 @@
         </aside>
 
         <!-- ── Main Chat ── -->
-        <main class="chat-main" id="chatMain" style="display: none;">
+        <main class="chat-main" id="chatMain">
 
-            <!-- Header -->
-            <div class="chat-header">
-                <div>
-                    <h3 id="chatWithTitle">💬 Select a contact</h3>
-                    <div class="subtitle" id="chatWithSubtitle">Messages are screened for toxicity</div>
+            <!-- Empty state (shown when no conversation selected) -->
+            <div class="chat-empty-state" id="emptyState">
+                <div class="empty-icon">💬</div>
+                <h3>Select a conversation</h3>
+                <p>Choose a contact from the sidebar to start chatting. All messages are screened for toxicity.</p>
+            </div>
+
+            <!-- Chat content (hidden until a contact is selected) -->
+            <div id="chatContent" style="display: none; flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                <!-- Header -->
+                <div class="chat-header">
+                    <div>
+                        <h3 id="chatWithTitle">💬 Select a contact</h3>
+                        <div class="subtitle" id="chatWithSubtitle">Messages are screened for toxicity</div>
+                    </div>
+                    <div class="shield-badge">🛡️ ToxiGuard Active</div>
                 </div>
-                <div class="shield-badge">🛡️ ToxiGuard Active</div>
-            </div>
 
-            <!-- Messages area -->
-            <div class="messages-area" id="messagesArea">
-                <div class="system-msg">🛡️ Welcome to ToxiGuard — a safe, moderated chat room.</div>
-            </div>
+                <!-- Messages area -->
+                <div class="messages-area" id="messagesArea">
+                    <div class="system-msg">🛡️ Welcome to ToxiGuard — a safe, moderated chat room.</div>
+                </div>
 
-            <!-- Input area -->
-            <div class="chat-input-area">
-                <div class="input-wrapper">
-                    <textarea id="messageInput" placeholder="Type a message... (Enter to send)" rows="1"
-                        maxlength="500"></textarea>
-                    <button class="btn-send" id="sendBtn" title="Send message">
-                        ➤
-                    </button>
+                <!-- Typing indicator -->
+                <div class="typing-indicator" id="typingIndicator" style="opacity: 0;">
+                    <span id="typingText"></span>
+                    <div class="dots"><span></span><span></span><span></span></div>
+                </div>
+
+                <!-- Mute banner -->
+                <div class="mute-banner" id="muteBanner" style="display: none;">
+                    🔇 You are muted. Time remaining: <span class="mute-timer" id="muteTimer">0:00</span>
+                </div>
+
+                <!-- Input area -->
+                <div class="chat-input-area">
+                    <div class="input-wrapper" id="inputWrapper">
+                        <textarea id="messageInput" placeholder="Type a message... (Enter to send)" rows="1"
+                            maxlength="500"></textarea>
+                        <button class="btn-send" id="sendBtn" title="Send message">
+                            ➤
+                        </button>
+                    </div>
                 </div>
             </div>
 
